@@ -1,0 +1,59 @@
+plugins {
+  id 'application'
+  id 'org.openjfx.javafxplugin' version '0.1.0'
+}
+
+dependencies {
+      // JUnit 5 API for writing tests
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
+
+    // JUnit 5 Engine to run tests
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
+
+    // TestFX
+    testImplementation 'org.testfx:testfx-core:4.0.18'
+    testImplementation 'org.testfx:testfx-junit5:4.0.18'
+
+}
+
+repositories {
+    mavenCentral()
+}
+
+javafx {
+    version = "21"
+    modules = [ 'javafx.controls', 'javafx.fxml' ]
+}
+
+test {
+    useJUnitPlatform()
+    modularity.inferModulePath.set(false)
+}
+
+sourceSets {
+    integrationTest {
+        java.srcDir file("src/integrationTest/java")
+        resources.srcDir file("src/integrationTest/resources")
+        compileClasspath += sourceSets.main.output + configurations.testRuntimeClasspath
+        runtimeClasspath += output + compileClasspath
+    }
+}
+
+configurations {
+    integrationTestImplementation.extendsFrom testImplementation
+    integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
+}
+
+task integrationTest(type: Test) {
+    description = "Runs integration tests"
+    group = "verification"
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+    shouldRunAfter test
+    useJUnitPlatform()
+    modularity.inferModulePath.set(false) // avoids JPMS issues
+}
+
+check.dependsOn integrationTest
+
+mainClassName = 'com.example.view.App'
