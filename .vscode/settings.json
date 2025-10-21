@@ -1,3 +1,4 @@
 {
-    "java.configuration.updateBuildConfiguration": "interactive"
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "livePreview.defaultPreviewPath": "/build/reports/tests/test/index.html",
 }
