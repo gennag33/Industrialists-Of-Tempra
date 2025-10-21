@@ -8,6 +8,8 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
+import com.example.model.config.ConfigManager;
+
 /**
  * JavaFX App
  */
@@ -32,6 +34,8 @@ public class App extends Application {
     }
 
     public static void main(String[] args) {
+        ConfigManager.loadAll();
+
         launch();
     }
 
