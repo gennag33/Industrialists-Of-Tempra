@@ -14,9 +14,9 @@ public class Player {
     private String name;
 
     // This data structures should be changed as necessary
-    private HashMap<ResourceType, Integer> resources;
+    private HashMap<String, Integer> resources;
     private ArrayList<String> cards;
-    private HashMap<StructureType, Integer> structuresRemaining;
+    private HashMap<String, Integer> structuresRemaining;
 
     /**
      * Player Class Constructor
@@ -29,15 +29,16 @@ public class Player {
         this.name = (name != null ? name : "");
 
         this.resources = new HashMap<>();
-        for (ResourceType t: ResourceType.values()) {
+        String[] types = {"resource.wood", "resource.brick", "resource.sheep", "resource.wheat", "resource.ore"}; // needs replaced to json version
+        for (String t: types) {
             this.resources.put(t, 0);
         }
 
         this.cards = new ArrayList<>();
 
         // Replace with global version
-        StructureType structureTypes[] = StructureType.values();
-        int startingStructures[] = {15, 5, 4};
+        String[] structureTypes = {"player_infrastructure.road", "player_infrastructure.settlement", "player_infrastructure.city", "player_infrastructure.dev_card"};
+        int startingStructures[] = {15, 5, 4, 50};
 
         this.structuresRemaining = new HashMap<>();
         for (int i = 0, n = structureTypes.length; i < n; i++) {
@@ -79,7 +80,7 @@ public class Player {
      * @param type  the type being set
      * @return resource count
      */
-    public int getResourceCount(ResourceType type) {
+    public int getResourceCount(String type) {
         if (this.resources.containsKey(type)) {
             return this.resources.get(type);
         } else {
@@ -94,7 +95,7 @@ public class Player {
     public int getTotalResources() {
         int total = 0;
         
-        for (ResourceType type : this.resources.keySet()) {
+        for (String type : this.resources.keySet()) {
             total += this.resources.get(type);
         }
 
@@ -107,7 +108,7 @@ public class Player {
      * @param count number of this resource
      * @return success of the operation
      */
-    public boolean setResourceCount(ResourceType type, int count) {
+    public boolean setResourceCount(String type, int count) {
         if (this.resources.containsKey(type)) {
             this.resources.put(type, count);
             return true;
@@ -122,7 +123,7 @@ public class Player {
      * @param change the amount of change; can be negative or positive
      * @return success of the operation
      */
-    public boolean changeResourceCount(ResourceType type, int change) {
+    public boolean changeResourceCount(String type, int change) {
         if (!this.resources.containsKey(type)) {
             return false;
         }
@@ -212,7 +213,7 @@ public class Player {
      * @param  type  the type of structure that is being checked
      * @return whether this player has depleted this structure type
      */
-    public boolean depletedStructures(StructureType type) {
+    public boolean depletedStructures(String type) {
         if (this.structuresRemaining.containsKey(type)) {
             return this.structuresRemaining.get(type) < 1;
         }
@@ -224,7 +225,7 @@ public class Player {
      * @param type type of structure
      * @return number left
      */
-    public int getStructuresRemaining(StructureType type) {
+    public int getStructuresRemaining(String type) {
         if (this.structuresRemaining.containsKey(type)) {
             return this.structuresRemaining.get(type);
         }
@@ -237,7 +238,7 @@ public class Player {
      * @param change the amount its changing; positive or negative
      * @return success of the operation
      */
-    public boolean changeStructuresRemainingByType(StructureType type, int change) {
+    public boolean changeStructuresRemainingByType(String type, int change) {
         if (!this.structuresRemaining.containsKey(type)) {
             return false;
         }
@@ -256,7 +257,7 @@ public class Player {
      * @param count the amount of structures left for the player
      * @return
      */
-    public boolean setStructuresRemainingByType(StructureType type, int count) {
+    public boolean setStructuresRemainingByType(String type, int count) {
         if (this.structuresRemaining.containsKey(type)) {
             this.structuresRemaining.put(type, count);
             return true;
@@ -270,7 +271,7 @@ public class Player {
      * @param newStructures the new structuresRemaining hash map
      * @return success of the operation
      */
-    public boolean replaceStructuresRemaining(HashMap<StructureType, Integer> newStructures) {
+    public boolean replaceStructuresRemaining(HashMap<String, Integer> newStructures) {
         if (newStructures != null) {
             this.structuresRemaining = newStructures;
             return true;
@@ -283,7 +284,7 @@ public class Player {
      * Fully empties the structuresRemaining; sets them all to 0
      */    
     public void emptyStructuresRemaining() {
-        for (StructureType key : this.structuresRemaining.keySet()) {
+        for (String key : this.structuresRemaining.keySet()) {
             this.structuresRemaining.put(key, 0);
         }
     }
