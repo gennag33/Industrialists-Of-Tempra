@@ -34,6 +34,7 @@ public final class ConfigManager {
     }
 
     public static void unloadAll() {
+        GameRulesRegistry.unload();
         ResourceRegistry.getInstance().unload();
         DevCardRegistry.getInstance().unload();
         PortRegistry.getInstance().unload();
