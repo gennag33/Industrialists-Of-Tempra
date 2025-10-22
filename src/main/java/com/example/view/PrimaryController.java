@@ -108,4 +108,13 @@ public class PrimaryController {
         }
         devCardDynamicLabel.setText(devCardInfo.toString());
     }
+
+    private void switchToTitle() throws IOException {
+        App.setRoot("titleScreen");
+    }
+
+    @FXML
+    private void switchToTest() throws IOException {
+        App.setRoot("test");
+    }
 }
