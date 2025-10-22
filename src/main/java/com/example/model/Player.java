@@ -15,7 +15,7 @@ public class Player {
 
     // This data structures should be changed as necessary
     private HashMap<String, Integer> resources;
-    private ArrayList<String> cards;
+    private ArrayList<String> devCards;
     private HashMap<String, Integer> structuresRemaining;
 
     /**
@@ -34,7 +34,7 @@ public class Player {
             this.resources.put(t, 0);
         }
 
-        this.cards = new ArrayList<>();
+        this.devCards = new ArrayList<>();
 
         // Replace with global version
         String[] structureTypes = {"player_infrastructure.road", "player_infrastructure.settlement", "player_infrastructure.city", "player_infrastructure.dev_card"};
@@ -144,8 +144,8 @@ public class Player {
      * @return the card
      */
     public String getCard(int index) {
-        if (index >= 0 && index < this.cards.size()) {
-            return this.cards.get(index);
+        if (index >= 0 && index < this.devCards.size()) {
+            return this.devCards.get(index);
         }
 
         return "";
@@ -161,7 +161,7 @@ public class Player {
             return false;
         }
 
-        this.cards.add(card);
+        this.devCards.add(card);
 
         return true;
     }
@@ -172,7 +172,7 @@ public class Player {
      * @return whether the card is owned at least once
      */
     public boolean hasCard(String type) {
-        for (String s : this.cards) {
+        for (String s : this.devCards) {
             if (s.equals(type)) {
                 return true;
             }
@@ -182,15 +182,15 @@ public class Player {
     }
 
     /**
-     * Gets the amount of cards of a given type is owned by the player
+     * Gets the amount of devCards of a given type is owned by the player
      * @param type type of the card being searched
-     * @return the number of cards of the type
+     * @return the number of devCards of the type
      */
     public int countCards(String type) {
 
         int count = 0;
 
-        for (String s : this.cards) {
+        for (String s : this.devCards) {
             if (s.equals(type)) {
                 count++;
             }
@@ -200,11 +200,11 @@ public class Player {
     }
 
     /**
-     * Getter for the total number of cards
-     * @return the total number of cards
+     * Getter for the total number of devCards
+     * @return the total number of devCards
      */
     public int numberOfCards() {
-        return this.cards.size();
+        return this.devCards.size();
     }
 
     /**
@@ -295,6 +295,6 @@ public class Player {
      */
     @Override
     public String toString() {
-        return "Player { id=" + this.id + ", name=" + this.name + ", resources=" + this.resources + ", cards=" + this.cards + ", structuresRemaining=" + this.structuresRemaining + " }";
+        return "Player { id=" + this.id + ", name=" + this.name + ", resources=" + this.resources + ", devCards=" + this.devCards + ", structuresRemaining=" + this.structuresRemaining + " }";
     }
 }
