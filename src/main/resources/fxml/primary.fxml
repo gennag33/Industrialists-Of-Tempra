@@ -31,6 +31,7 @@
 
       <Label fx:id="devCardTitleLabel" text="Development Cards Config" />
       <Label fx:id="devCardDynamicLabel" text="Loading... " />
+      
       <Label text="Primary View" />
       <Button fx:id="primaryButton" text="Switch to Secondary View" onAction="#switchToSecondary"/>
       <Button fx:id="titleButton" text="Switch to Title Screen" onAction="#switchToTitle"/>

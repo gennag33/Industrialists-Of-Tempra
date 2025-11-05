@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.Double?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.HBox?>
@@ -42,16 +43,39 @@
                 <Label text="Number of Players:" styleClass="prompt-text-small"/>
             </VBox>
 
-            <VBox fx:id="threeBox" alignment="CENTER" spacing="10">
-                <Label fx:id="threeOption" text="3" styleClass="number-option"/>
+            <VBox fx:id="threeBox" alignment="CENTER" spacing="10" styleClass="menu-item">
+                <StackPane fx:id="threePane" alignment="CENTER" styleClass="numberPane">
+                    <Polygon fx:id="threeHex" styleClass="hexagon" fill="DODGERBLUE" stroke="BLACK">
+                        <points>
+                            <Double fx:value="0"/><Double fx:value="-40"/>
+                            <Double fx:value="34.64"/><Double fx:value="-20"/>
+                            <Double fx:value="34.64"/><Double fx:value="20"/>
+                            <Double fx:value="0"/><Double fx:value="40"/>
+                            <Double fx:value="-34.64"/><Double fx:value="20"/>
+                            <Double fx:value="-34.64"/><Double fx:value="-20"/>
+                        </points>
+                    </Polygon>
+                    <Label fx:id="threeOption" text="3" styleClass="number-option"/>
+                </StackPane>
             </VBox>
 
-            <VBox fx:id="fourBox" alignment="CENTER" spacing="10">
-                <Label fx:id="fourOption" text="4" styleClass="number-option"/>
+            <VBox fx:id="fourBox" alignment="CENTER" spacing="10" styleClass="menu-item">
+                <StackPane fx:id="fourPane" alignment="CENTER" styleClass="numberPane">
+                    <Polygon fx:id="fourHex" styleClass="hexagon" fill="DODGERBLUE" stroke="BLACK">
+                        <points>
+                            <Double fx:value="0"/><Double fx:value="-40"/>
+                            <Double fx:value="34.64"/><Double fx:value="-20"/>
+                            <Double fx:value="34.64"/><Double fx:value="20"/>
+                            <Double fx:value="0"/><Double fx:value="40"/>
+                            <Double fx:value="-34.64"/><Double fx:value="20"/>
+                            <Double fx:value="-34.64"/><Double fx:value="-20"/>
+                        </points>
+                    </Polygon>
+                    <Label fx:id="fourOption" text="4" styleClass="number-option"/>
+                </StackPane>
             </VBox>
 
         </HBox>
-
 
         <!-- Player name entries -->
         <VBox fx:id="playerNamesBox" spacing="10" alignment="TOP_CENTER">
@@ -78,18 +102,33 @@
 
         </VBox>
 
-        <!-- Play Game button at the bottom -->
-        <HBox fx:id="playGameBox"
-            alignment="CENTER_RIGHT"
-            spacing="10"
-            styleClass="menu-item"
-            prefHeight="80"
-            maxWidth="400">
+        <!-- Play Game button -->
+        <StackPane fx:id="playStack" alignment="CENTER">
+            <HBox fx:id="playHBox"
+                spacing="20"
+                alignment="CENTER"
+                styleClass="menu-item"
+                onMouseClicked="#switchToGameScreen">
 
-            <Label fx:id="playGameLabel"
-                text="Play Game"
-                styleClass="menu-label"/>
-        </HBox>
+                <Polygon fx:id="playHex"
+                        styleClass="hexagon"
+                        fill="DODGERBLUE"
+                        stroke="BLACK"
+                        strokeType="INSIDE">
+                    <points>
+                        <Double fx:value="0"/><Double fx:value="-25"/>
+                        <Double fx:value="21.65"/><Double fx:value="-12.5"/>
+                        <Double fx:value="21.65"/><Double fx:value="12.5"/>
+                        <Double fx:value="0"/><Double fx:value="25"/>
+                        <Double fx:value="-21.65"/><Double fx:value="12.5"/>
+                        <Double fx:value="-21.65"/><Double fx:value="-12.5"/>
+                    </points>
+                </Polygon>
 
+                <Label fx:id="playText"
+                    text="Play Game"
+                    styleClass="menu-label"/>
+            </HBox>
+        </StackPane>
     </VBox>
 </StackPane>

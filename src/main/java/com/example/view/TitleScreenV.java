@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.model.config.LangManager;
+
 import javafx.animation.AnimationTimer;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -82,6 +84,10 @@ public class TitleScreenV {
         setupHoverAnimation(playHBox, playHex);
         setupHoverAnimation(settingsHBox, settingsHex);
         setupHoverAnimation(exitHBox, exitHex);
+
+        playText.setText(LangManager.get("playText"));
+        settingsText.setText(LangManager.get("settingsText"));
+        exitText.setText(LangManager.get("exitText"));
     }
 
     // Added to the Exit 'Button'
@@ -142,7 +148,6 @@ public class TitleScreenV {
             hoverOut.playFromStart();
         });
     }
-
     
     // Add Gradual Scaling to all Menu Options
     private void applyHoverScaling(javafx.scene.Node node) {
