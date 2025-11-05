@@ -1,5 +1,6 @@
 package com.example.view;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,17 +9,19 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.ScaleTransition;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import javafx.util.Duration;
-
+import javafx.scene.control.TextField;
 
 public class SetupScreenV {
 
@@ -26,13 +29,25 @@ public class SetupScreenV {
     private Canvas hexCanvas;
 
     @FXML
-    private Label threeOption, fourOption;
+    private Label threeOption, fourOption, playText;
 
     @FXML
     private VBox threeBox, fourBox;
 
     @FXML
-    private HBox pFourBox;
+    private Polygon threeHex, fourHex, playHex;
+
+    @FXML
+    private StackPane threePane, fourPane;
+
+    @FXML
+    private TextField player1Field, player2Field, player3Field, player4Field;
+
+    @FXML
+    private HBox pFourBox, playHBox;
+
+    @FXML
+    private VBox selectedBox, playVBox; // Only one of threeBox or fourBox can be active
 
     private double r = 75; // hex radius
 
@@ -64,15 +79,35 @@ public class SetupScreenV {
         drawStaticBackground();
         startHexSpiralAnimation();
 
+        playHBox.setPickOnBounds(false);
+
         // Set up click handlers for each option
         threeBox.setOnMouseClicked(event -> selectPlayers(3));
         fourBox.setOnMouseClicked(event -> selectPlayers(4));
 
         // Add Gradual Scaling to all Menu Options
-            // Three
         applyHoverScaling(threeOption);
-            // Four
         applyHoverScaling(fourOption);
+            // Play
+        applyHoverScaling(playHex);
+        applyHoverScaling(playText);
+
+        // Tie Hovering to All Elements in HBoxes
+        setupHoverAnimation(threeBox, threeHex, threeOption);
+        setupHoverAnimation(fourBox, fourHex, fourOption);
+        setupPlayHover(playHex, playText);
+
+        // --- Automatically select 4 players on load ---
+        Platform.runLater(() -> {
+            fourBox.fireEvent(new javafx.scene.input.MouseEvent(
+                javafx.scene.input.MouseEvent.MOUSE_CLICKED,
+                0, 0, 0, 0,
+                javafx.scene.input.MouseButton.PRIMARY,
+                1,
+                false, false, false, false,
+                true, false, false, true, false, false, null
+            ));
+        });
     }
 
     // Layout of hex grid for the background
@@ -181,15 +216,149 @@ public class SetupScreenV {
         });
     }
 
-    // Select player number
-    private void selectPlayers(int number) {
-        if (number == 3) {
-            pFourBox.setVisible(false);
-            pFourBox.setManaged(false); // removes it from layout flow
-        } else if (number == 4) {
-            pFourBox.setVisible(true);
-            pFourBox.setManaged(true);
+    private void selectPlayers(int number) 
+    {
+        VBox newSelection = (number == 3) ? threeBox : fourBox;
+
+        // No previous selection, just mark this one
+        if (selectedBox == null) {
+            selectedBox = newSelection;
+            if (!selectedBox.getStyleClass().contains("selected"))
+                selectedBox.getStyleClass().add("selected");
+        } else {
+            if (newSelection == selectedBox) return;
+
+            VBox oldSelection = selectedBox;
+            selectedBox = newSelection;
+
+            oldSelection.getStyleClass().remove("selected");
+            if (!selectedBox.getStyleClass().contains("selected"))
+                selectedBox.getStyleClass().add("selected");
         }
+
+        boolean isThree = (number == 3);
+        pFourBox.setVisible(!isThree);
+        pFourBox.setManaged(!isThree);
     }
+
+    // Keeps selected hex highlighted and disables hoverOut for it.
+    private void setupHoverAnimation(VBox vbox, Polygon hex, Label lbl) 
+    {
+        // Start invisible unless it’s currently selected
+        hex.setOpacity((vbox == selectedBox) ? 1.0 : 0.0);
+
+        Timeline hoverIn = new Timeline(
+            new KeyFrame(Duration.millis(250),
+                new KeyValue(hex.opacityProperty(), 1.0),
+                new KeyValue(hex.scaleXProperty(), 1.15),
+                new KeyValue(hex.scaleYProperty(), 1.15),
+                new KeyValue(lbl.rotateProperty(), 5),
+                new KeyValue(lbl.scaleXProperty(), 1.15),
+                new KeyValue(lbl.scaleYProperty(), 1.15)
+            )
+        );
+
+        Timeline hoverOut = new Timeline(
+            new KeyFrame(Duration.millis(200),
+                new KeyValue(hex.opacityProperty(), 0.0),
+                new KeyValue(hex.scaleXProperty(), 1.0),
+                new KeyValue(hex.scaleYProperty(), 1.0),
+                new KeyValue(lbl.rotateProperty(), 0),
+                new KeyValue(lbl.scaleXProperty(), 1.0),
+                new KeyValue(lbl.scaleYProperty(), 1.0)
+            )
+        );
+
+        // --- HOVER IN ---
+        vbox.setOnMouseEntered(e -> {
+            if (vbox == selectedBox) return;
+            hoverOut.stop();
+            hoverIn.playFromStart();
+        });
+
+        // --- HOVER OUT ---
+        vbox.setOnMouseExited(e -> {
+            if (vbox == selectedBox) return;
+            hoverIn.stop();
+            hoverOut.playFromStart();
+        });
+
+        vbox.setUserData(new Timeline[] { hoverIn, hoverOut });
+    }
+
+    private void setupPlayHover(Polygon hex, Label lbl) 
+    {
+        Timeline hoverIn = new Timeline(
+            new KeyFrame(Duration.millis(250),
+                new KeyValue(hex.opacityProperty(), 1.0),
+                new KeyValue(hex.scaleXProperty(), 1.15),
+                new KeyValue(hex.scaleYProperty(), 1.15),
+                new KeyValue(lbl.rotateProperty(), 5),
+                new KeyValue(lbl.scaleXProperty(), 1.15),
+                new KeyValue(lbl.scaleYProperty(), 1.15)
+            )
+        );
+
+        Timeline hoverOut = new Timeline(
+            new KeyFrame(Duration.millis(200),
+                new KeyValue(hex.opacityProperty(), 0.0),
+                new KeyValue(hex.scaleXProperty(), 1.0),
+                new KeyValue(hex.scaleYProperty(), 1.0),
+                new KeyValue(lbl.rotateProperty(), 0),
+                new KeyValue(lbl.scaleXProperty(), 1.0),
+                new KeyValue(lbl.scaleYProperty(), 1.0)
+            )
+        );
+
+        // Attach to both Polygon and Label
+        javafx.event.EventHandler<javafx.scene.input.MouseEvent> enterHandler = e -> {
+            hoverOut.stop();
+            hoverIn.playFromStart();
+        };
+
+        javafx.event.EventHandler<javafx.scene.input.MouseEvent> exitHandler = e -> {
+            hoverIn.stop();
+            hoverOut.playFromStart();
+        };
+
+        hex.setOnMouseEntered(enterHandler);
+        lbl.setOnMouseEntered(enterHandler);
+
+        hex.setOnMouseExited(exitHandler);
+        lbl.setOnMouseExited(exitHandler);
+    }
+
+    public String[] getPlayerNames(int numPlayers) {
+        String[] names = new String[4]; // Always return 4 entries
+
+        names[0] = player1Field.getText().isEmpty() ? "Player 1" : player1Field.getText();
+        names[1] = player2Field.getText().isEmpty() ? "Player 2" : player2Field.getText();
+        names[2] = player3Field.getText().isEmpty() ? "Player 3" : player3Field.getText();
+
+        if (numPlayers == 4) {
+            names[3] = player4Field.getText().isEmpty() ? "Player 4" : player4Field.getText();
+        } else {
+            names[3] = "N/A"; // Only 3 players selected
+        }
+
+        return names;
+    }
+
+    @FXML
+    private void switchToGameScreen() {
+        try {
+            int numPlayers = (selectedBox == threeBox) ? 3 : 4;
+            String[] playerNames = getPlayerNames(numPlayers);
+
+            // Store names before loading screen
+            GameScreenV.setNextPlayerNames(playerNames);
+
+            // Switch screens
+            App.setRoot("gameScreen");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }   
+
 
 }

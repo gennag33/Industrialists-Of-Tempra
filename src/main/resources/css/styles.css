@@ -69,6 +69,20 @@
     -fx-cursor: hand;
 }
 
+.menu-item.selected .hexagon {
+    -fx-opacity: 1;               /* ✅ Stay visible */
+    -fx-scale-x: 1.15;
+    -fx-scale-y: 1.15;
+    -fx-effect: dropshadow(one-pass-box, rgb(0, 0, 0), 12, 1.0, 0, 0); /* subtle glow */
+}
+
+.menu-item.selected .menu-label {
+    -fx-rotate: 5;
+    -fx-scale-x: 1.15;
+    -fx-scale-y: 1.15;
+    -fx-effect: dropshadow(one-pass-box, #000000, 6, 1.0, 3, 3);
+}
+
 /* When hovered: Hexagon swell and appear */
 .menu-item:hover .hexagon {
     -fx-opacity: 1;
@@ -165,6 +179,13 @@
     -fx-padding: 0;
 }
 
+.numberPane:hover, 
+.numberPane.selected {
+    -fx-effect: dropshadow(one-pass-box, #000000, 2, 1.0, 2, 2);
+
+    -fx-cursor: hand;
+}
+
 /* TextFields: text color + underline */
 #player1Field {
     -fx-text-fill: #e43b29;
@@ -186,7 +207,6 @@
     -fx-border-color: transparent transparent #517d19 transparent;
 }
 
-
 /* Common text field styling */
 .name-enter {
     -fx-background-color: transparent;
@@ -198,3 +218,36 @@
     -fx-font-size: 25;
     -fx-font-weight: bold;
 }
+
+/* -------------------*/
+/* |   GAME SCREEN   |*/
+/* -------------------*/
+
+.player-label {
+    -fx-text-fill: white;
+    -fx-font-size: 20px;
+    -fx-font-family: 'Oswald-Regular';
+    -fx-font-weight: bold;
+}
+
+.parallelogram {
+    -fx-fill: rgba(50, 50, 50, 1.0);
+    -fx-stroke: black;
+    -fx-stroke-width: 6;
+    -fx-effect: dropshadow(one-pass-box, white, 10, 1.0, 0, 0);
+}
+
+.parallelogram.selected {
+    -fx-scale-x: 1.2;
+    -fx-scale-y: 1.2;
+    -fx-stroke-width: 6;
+    -fx-stroke: gold;
+}
+
+.player-label.selected {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: gold;
+}
+
+

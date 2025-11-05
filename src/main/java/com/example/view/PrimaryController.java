@@ -109,6 +109,7 @@ public class PrimaryController {
         devCardDynamicLabel.setText(devCardInfo.toString());
     }
 
+    @FXML
     private void switchToTitle() throws IOException {
         App.setRoot("titleScreen");
     }

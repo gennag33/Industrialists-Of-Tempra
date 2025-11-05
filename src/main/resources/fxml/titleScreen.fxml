@@ -50,7 +50,7 @@
                             <Double fx:value="-21.65"/><Double fx:value="-12.5"/>
                         </points>
                     </Polygon>
-                    <Label fx:id="playText" text="Play Game" styleClass="menu-label"/>
+                    <Label fx:id="playText" styleClass="menu-label"/>
                 </HBox>
 
                 <!-- Settings group -->
@@ -65,7 +65,7 @@
                             <Double fx:value="-21.65"/><Double fx:value="-12.5"/>
                         </points>
                     </Polygon>
-                    <Label fx:id="settingsText" text="Settings" styleClass="menu-label"/>
+                    <Label fx:id="settingsText" styleClass="menu-label"/>
                 </HBox>
 
                 <!-- Exit group -->
@@ -80,7 +80,7 @@
                             <Double fx:value="-21.65"/><Double fx:value="-12.5"/>
                         </points>
                     </Polygon>
-                    <Label fx:id="exitText" text="Exit" styleClass="menu-label"/>
+                    <Label fx:id="exitText" styleClass="menu-label"/>
                 </HBox>
 
             </children>
