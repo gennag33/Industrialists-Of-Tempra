@@ -1,8 +1,8 @@
 package com.example.model;
 public class Tile {
 
-    //the resource the tile produces
-    private int tileID;
+    //the id of the tile
+    private String tileID;
     //the number that needs rolled to produce said resource
     private int number;
     //stores every possible location for a settlement
@@ -14,7 +14,7 @@ public class Tile {
     public Tile() {}
 
     //paramaterised constructor
-    public Tile(int _tileID, int _number,  int[] _adjVertices, boolean _isBlocked){
+    public Tile(String _tileID, int _number,  int[] _adjVertices, boolean _isBlocked){
         tileID = _tileID;
         number = _number;
         adjVertices = _adjVertices;
@@ -22,13 +22,13 @@ public class Tile {
     }
 
     //getters
-    public int getResource(){ return this.tileID; }
+    public String getTileID(){ return this.tileID; }
     public int getNumber(){ return this.number; }
     public int[] getAdjVertices(){ return this.adjVertices; }
     public boolean getIsBlocked(){ return this.isBlocked; }
 
     //setters
-    public void setResource(int _tileID){ this.tileID = _tileID;}
+    public void setTileID(String _tileID){ this.tileID = _tileID;}
     public void setNumber(int _number){ this.number = _number;}
     public void setAdjVertices(int[] _adjVertices){ this.adjVertices = _adjVertices;}
     public void setIsBlocked(boolean _isBlocked){ this.isBlocked = _isBlocked;}

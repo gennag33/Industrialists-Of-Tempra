@@ -7,7 +7,7 @@ public class Structure {
     private int vertex;
 
     //settlement or city
-    private structureType type;
+    private String structureType;
 
     //which player owns this structure
     private int playerID;
@@ -16,19 +16,19 @@ public class Structure {
     public Structure() {}
 
     //paramaterised constructor
-    public Structure(int _vertex, structureType _type, int _playerID){
+    public Structure(int _vertex, String _structureType, int _playerID){
         this.vertex = _vertex;
-        this.type = _type;
+        this.structureType = _structureType;
         this.playerID = _playerID;
     }
 
     //getters
     public int getVertex(){return vertex;}
-    public structureType getType(){return type;}
+    public String getType(){return structureType;}
     public int getPlayerID(){return playerID;}
 
     //setters
     public void setVertex(int _vertex){this.vertex = _vertex;}
-    public void setType(structureType _type){this.type = _type;}
+    public void setType(String _type){this.structureType = _type;}
     public void setPlayerID(int _playerID){this.playerID = _playerID;}
 }

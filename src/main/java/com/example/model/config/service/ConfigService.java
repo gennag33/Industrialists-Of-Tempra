@@ -3,7 +3,9 @@ package com.example.model.config.service;
 import com.example.model.config.*;
 import com.example.model.config.registry.*;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 
 public class ConfigService {
 
@@ -20,6 +22,10 @@ public class ConfigService {
 
     public static int getRobberCardLimit() {
         return GameRulesRegistry.get().robberCardLimit;
+    }
+
+    public static Map<Integer, Integer> getNumberTokens(){
+        return GameRulesRegistry.get().numberTokens;
     }
 
     // -------------------------
@@ -75,6 +81,15 @@ public class ConfigService {
 
     public static Collection<TileConfig> getAllTiles() {
         return TileRegistry.getInstance().all();
+    }
+
+    public static ArrayList<String> getAllTileIDs(){
+        Collection<TileConfig> tileConfigs = ConfigService.getAllTiles();
+        ArrayList<String> tileIDs = new ArrayList<String>();
+        for (TileConfig tileConfig : tileConfigs){
+            tileIDs.add(tileConfig.id);
+        }
+        return tileIDs;
     }
 
     // -------------------------

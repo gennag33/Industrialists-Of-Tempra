@@ -1,17 +1,23 @@
 package com.example.model;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
 import java.util.Random;
+
+import com.example.model.config.TileConfig;
+import com.example.model.config.service.ConfigService;
 
 public class Tiles {
     
-    //public, so index can be easily accessed
-    public Tile[] tiles;
+    private Tile[] tiles;
 
     //Board size, change if a bigger/smaller board is desired
     //19 is a normal 3 hex-per-side board
     private final int NUMBER_OF_HEXES = 19;
 
     public Tiles(){
-        this.tiles = setTiles();
+        this.tiles = setUpTiles();
     }
 
     //getter
@@ -25,7 +31,11 @@ public class Tiles {
     }
 
     //set up all the tiles in the gameboard
-    private Tile[] setTiles(){
+    private Tile[] setUpTiles(){
+
+        //getting tile config data for setup
+        ArrayList<String> tileIDs = ConfigService.getAllTileIDs();
+
         //generally 19 tiles
         Tile[] tiles = new Tile[NUMBER_OF_HEXES];
 
@@ -35,14 +45,10 @@ public class Tiles {
         //set tile resources
         //19 tiles: 4 wood, 4 sheep, 4 wheat, 3 brick, 3 rock, 1 desert
         //max 4 of each:
-        int numOfWood = 4;
-        int numOfSheep = 4;
-        int numOfWheat = 4;
-        //max 3 of each:
-        int numOfBrick = 3;
-        int numOfRock = 3;
-        //max 1:
-        int numOfDesert = 1;
+        ArrayList<Integer> tileQuantities = new ArrayList<Integer>();
+        for (String tileID : tileIDs){
+            tileQuantities.add(ConfigService.getTile(tileID).maxQuantity);
+        }
 
         Random random = new Random();
         for (int i = 0; i < NUMBER_OF_HEXES; i++){
@@ -50,67 +56,16 @@ public class Tiles {
             //repeat until valid
             boolean valid = false;
             while (!valid){
-                //generate random number 0-5 (inclusive)
-                //0 is wood, 1 is sheep, 2 is wheat, 3 is brick, 4 is rock, 5 is desert
-                int num = random.nextInt(6);
-
-                //assign
-                switch(num){
-                    case 0:
-                        //if wood, set tile to wood and subtract from number of wood left to assign
-                        if (numOfWood != 0){
-                            tiles[i].setResource(0);
-                            numOfWood--;
-                            valid = true;
-                        }
-                        break;
-
-                    case 1:
-                        //if sheep, set tile to sheep and subtract from number of sheep left to assign
-                        if (numOfSheep != 0){
-                            tiles[i].setResource(4);
-                            numOfSheep--;
-                            valid = true;
-                        }
-                        break;
-
-                    case 2:
-                        //if wheat, set tile to wheat and subtract from number of wheat left to assign
-                        if (numOfWheat != 0){
-                            tiles[i].setResource(3);
-                            numOfWheat--;
-                            valid = true;
-                        }
-                        break;
-
-                    case 3:
-                        //if brick, set tile to brick and subtract from number of brick left to assign
-                        if (numOfBrick != 0){
-                            tiles[i].setResource(1);
-                            numOfBrick--;
-                            valid = true;
-                        }
-                        break;
-
-                    case 4:
-                        //if rock, set tile to rock and subtract from number of rock left to assign
-                        if (numOfRock != 0){
-                            tiles[i].setResource(2);
-                            numOfRock--;
-                            valid = true;
-                        }
-                        break;
-
-                    case 5:
-                        //if desert, set tile to desert and subtract from number of desert left to assign
-                        if (numOfDesert != 0){
-                            tiles[i].setResource(5);
-                            numOfDesert--;
-                            valid = true;
-                        }
-                        break;
-                    
+                //generate random number 0-number of resource types (exclusive)
+                int num = random.nextInt(tileQuantities.size());
+                
+                int tileQuantity = tileQuantities.get(num);
+                if (tileQuantity != 0){
+                    tiles[i].setTileID(tileIDs.get(num));
+                    tileQuantities.set(num, tileQuantity);
+                    valid = true;
                 }
+
             }
         }
 
@@ -121,7 +76,7 @@ public class Tiles {
         for (int i = 0; i < NUMBER_OF_HEXES; i++){
             //if tile is a desert, don't assign a number
             boolean passedDesert = false;
-            if (tiles[i].getResource() == 5){
+            if (ConfigService.getTile(tiles[i].getTileID()).resourceID == ""){
                 passedDesert = true;
                 tiles[i].setIsBlocked(true);
             }
@@ -140,36 +95,109 @@ public class Tiles {
     }
 
     private int[] generateTileNumberSequence(){
-        //temporary solution
-        //algorithm to induce randomness needs added
-        return new int[] {5, 2, 6, 3, 8, 10, 9, 12, 11, 4, 8, 10, 9, 4, 5, 6, 3, 11};
+        Map<Integer, Integer> numberTokens = ConfigService.getNumberTokens();
+        int NUMBER_OF_TOKENS = numberTokens.values().stream().mapToInt(Integer::intValue).sum();
+        int[] sequence = new int[NUMBER_OF_TOKENS];
+
+        int sizeOfSequence = 0;
+        for (int key : numberTokens.keySet()){
+            int occurences = numberTokens.get(key);
+            for (int i = 0; i < occurences; i++){
+                sequence[sizeOfSequence] = key;
+                sizeOfSequence++;
+            }
+        }
+
+        return generateValidLayout(sequence);
+    }
+
+    private static final int MAX_ATTEMPTS = 100000;
+    private static int[] generateValidLayout(int[] tokens) {
+        Random rand = new Random();
+        int[] layout = Arrays.copyOf(tokens, tokens.length);
+
+        for (int attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+            shuffleArray(layout, rand);
+            if (isValidLayout(layout)) {
+                return layout;
+            }
+        }
+
+        throw new RuntimeException("Couldn't find a valid layout after " + MAX_ATTEMPTS + " attempts");
+    }
+
+    private static boolean isValidLayout(int[] layout) {
+        for (int i = 0; i < layout.length; i++) {
+            if (layout[i] == 6 || layout[i] == 8) {
+                for (int adj : ADJACENCY[i]) {
+                    if (layout[adj] == 6 || layout[adj] == 8) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    private static void shuffleArray(int[] array, Random rand) {
+        for (int i = array.length - 1; i > 0; i--) {
+            int j = rand.nextInt(i + 1);
+            int temp = array[i];
+            array[i] = array[j];
+            array[j] = temp;
+        }
     }
 
     private Tile[] setAdjVerticesForEachTile(Tile[] tiles){
-        //manually set each tiles vertices
-        tiles[0].setAdjVertices(new int[]{0, 1, 2, 8, 9, 10});
-        tiles[1].setAdjVertices(new int[]{2, 3, 4, 10, 11, 12});
-        tiles[2].setAdjVertices(new int[]{4, 5, 6, 12, 13, 14}); 
-        tiles[3].setAdjVertices(new int[]{7, 8, 9, 17, 18, 19}); 
-        tiles[4].setAdjVertices(new int[]{9, 10, 11, 19, 20, 21}); 
-        tiles[5].setAdjVertices(new int[]{11, 12, 13, 21, 22, 23}); 
-        tiles[6].setAdjVertices(new int[]{13, 14, 15, 23, 24, 25}); 
-        tiles[7].setAdjVertices(new int[]{16, 17, 18, 27, 28, 29}); 
-        tiles[8].setAdjVertices(new int[]{18, 19, 20, 29, 30, 31}); 
-        tiles[9].setAdjVertices(new int[]{20, 21, 22, 31, 32, 33}); 
-        tiles[10].setAdjVertices(new int[]{22, 23, 24, 33, 34, 35}); 
-        tiles[11].setAdjVertices(new int[]{24, 25, 26, 35, 36, 37}); 
-        tiles[12].setAdjVertices(new int[]{28, 29, 30, 38, 39, 40}); 
-        tiles[13].setAdjVertices(new int[]{30, 31, 32, 40, 41, 42}); 
-        tiles[14].setAdjVertices(new int[]{32, 33, 34, 42, 43, 44}); 
-        tiles[15].setAdjVertices(new int[]{34, 35, 36, 44, 45, 46}); 
-        tiles[16].setAdjVertices(new int[]{39, 40, 41, 47, 48, 49}); 
-        tiles[17].setAdjVertices(new int[]{41, 42, 43, 49, 50, 51});
-        tiles[18].setAdjVertices(new int[]{43, 44, 45, 51, 52, 53});
+        for (int i = 0; i < VERTICES.length; i++){
+            tiles[i].setAdjVertices(VERTICES[i]);
+        }
         
         return tiles;
     }
 
+    private static final int[][] VERTICES = {
+        {0, 1, 2, 8, 9, 10},      // tile 0
+        {2, 3, 4, 10, 11, 12},    // tile 1
+        {4, 5, 6, 12, 13, 14},    // tile 2
+        {7, 8, 9, 17, 18, 19},    // tile 3
+        {9, 10, 11, 19, 20, 21},  // tile 4
+        {11, 12, 13, 21, 22, 23}, // tile 5
+        {13, 14, 15, 23, 24, 25}, // tile 6
+        {16, 17, 18, 27, 28, 29}, // tile 7
+        {18, 19, 20, 29, 30, 31}, // tile 8
+        {20, 21, 22, 31, 32, 33}, // tile 9
+        {22, 23, 24, 33, 34, 35}, // tile 10
+        {24, 25, 26, 35, 36, 37}, // tile 11
+        {28, 29, 30, 38, 39, 40}, // tile 12
+        {30, 31, 32, 40, 41, 42}, // tile 13
+        {32, 33, 34, 42, 43, 44}, // tile 14
+        {34, 35, 36, 44, 45, 46}, // tile 15
+        {39, 40, 41, 47, 48, 49}, // tile 16
+        {41, 42, 43, 49, 50, 51}, // tile 17
+        {43, 44, 45, 51, 52, 53}  // tile 18
+    };
 
+    private static final int[][] ADJACENCY = {
+        {1, 3, 4},           // 0
+        {0, 2, 4, 5},        // 1
+        {1, 5, 6},           // 2
+        {0, 4, 7, 8},        // 3
+        {0, 1, 3, 5, 8, 9},  // 4
+        {1, 2, 4, 6, 9, 10}, // 5
+        {2, 5, 10, 11},      // 6
+        {3, 8, 12},          // 7
+        {3, 4, 7, 9, 12, 13},// 8
+        {4, 5, 8, 10, 13, 14},// 9
+        {5, 6, 9, 11, 14, 15},// 10
+        {6, 10, 15},         // 11
+        {7, 8, 13, 16},      // 12
+        {8, 9, 12, 14, 16, 17},// 13
+        {9, 10, 13, 15, 17, 18},// 14
+        {10, 11, 14, 18},    // 15
+        {12, 13, 17},        // 16
+        {13, 14, 16, 18},    // 17
+        {14, 15, 17}         // 18
+    };
     
 }

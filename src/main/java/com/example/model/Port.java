@@ -3,7 +3,7 @@ package com.example.model;
 public class Port {
     
     //stores what the port trades in
-    private int portID;
+    private String portID;
 
     //stores where the port is
     private int[] adjVertices;
@@ -13,16 +13,16 @@ public class Port {
     public Port(){}
 
     //paramaterised constructor
-    public Port(int _portID, int[] _adjVertices){
+    public Port(String _portID, int[] _adjVertices){
         this.portID = _portID;
         this.adjVertices = _adjVertices;
     }
 
     //getters
-    public int getPortID(){return portID;}
+    public String getPortID(){return portID;}
     public int[] getAdjVertices(){return adjVertices;}
 
     //setters
-    public void setPortID(int _portID){this.portID = _portID;}
+    public void setPortID(String _portID){this.portID = _portID;}
     public void setAdjVertices(int[] _adjVertices){this.adjVertices = _adjVertices;}
 }
