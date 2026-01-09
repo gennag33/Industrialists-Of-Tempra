@@ -100,6 +100,16 @@ public class TitleScreenV {
         }
     }
 
+    // Added to Settings 'Button'
+    @FXML
+    private void switchToSettings(MouseEvent event) throws IOException {
+        try {
+            App.setRoot("settings");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
     // Added to the Play 'Button'
     @FXML
     private void switchToSetup(MouseEvent event) throws IOException {

@@ -106,7 +106,7 @@
     -fx-font-style: italic;
     -fx-effect: dropshadow(one-pass-box, #000000, 2, 1.0, 2, 2);
     -fx-translate-x: 38;
-    -fx-translate-y: 12;
+    -fx-translate-y: 14;
 }
 
 .title-rest {
@@ -115,7 +115,7 @@
     -fx-text-fill: #e5b727;
     -fx-font-weight: bold;
     -fx-font-style: italic;
-    -fx-translate-x: -210; 
+    -fx-translate-x: -200; 
     -fx-effect: dropshadow(one-pass-box, #000000, 3, 1.0, 4, 4);
 }
 
@@ -250,4 +250,134 @@
     -fx-text-fill: gold;
 }
 
+/* -----------------------*/
+/* |   SETTINGS SCREEN   |*/
+/* -----------------------*/
+
+/* === Language ComboBox (Red theme) === */
+#languageCombo {
+    -fx-text-fill: #e43b29;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-border-color: transparent transparent #e43b29 transparent;
+    -fx-border-width: 0 0 3 0;
+}
+#languageCombo .list-cell {
+    -fx-text-fill: #e43b29;
+    -fx-font-size: 18px;
+    -fx-background-color: rgba(255, 255, 255, 1.0); /* white background */
+    -fx-border-color: rgb(50, 50, 50);        /* grey outline */
+    -fx-border-width: 0.5;
+}
+/* Selected item remains semi-transparent */
+#languageCombo .list-cell:selected {
+    -fx-background-color: rgba(255, 157, 157, 0.3);
+    -fx-text-fill: #e43b29;
+}
+#languageCombo .arrow-button .arrow {
+    -fx-background-color: #e43b29;
+}
+
+/* Language ComboBox selected text */
+#languageCombo .list-cell:selected .text {
+    -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,1.0), 1, 1.0, 1, 1);
+}
+
+/* === Text Size ComboBox (Blue theme) === */
+#textSizeCombo {
+    -fx-text-fill: #4fa6eb;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-border-color: transparent transparent #4fa6eb transparent;
+    -fx-border-width: 0 0 3 0;
+}
+#textSizeCombo .list-cell {
+    -fx-text-fill: #4fa6eb;
+    -fx-font-size: 18px;
+    -fx-background-color: rgba(255, 255, 255, 1.0); /* white background */
+    -fx-border-color: rgba(50, 50, 50, 1.0);        /* grey outline */
+    -fx-border-width: 0.5;
+}
+#textSizeCombo .list-cell:selected {
+    -fx-background-color: rgba(202, 231, 255, 0.3);
+    -fx-text-fill: #4fa6eb;
+}
+
+#textSizeCombo .arrow-button .arrow {
+    -fx-background-color: #4fa6eb;
+}
+
+/* Text Size ComboBox selected text */
+#textSizeCombo .list-cell:selected .text {
+    -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,1.0), 1, 1.0, 1, 1);
+}
+
+/* === Resolution ComboBox (Yellow theme) === */
+#resolutionCombo {
+    -fx-text-fill: #f0ad00;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-border-color: transparent transparent #f0ad00 transparent;
+    -fx-border-width: 0 0 3 0;
+}
+#resolutionCombo .list-cell {
+    -fx-text-fill: #f0ad00;
+    -fx-font-size: 18px;
+    -fx-background-color: rgba(255, 255, 255, 1.0); /* white background */
+    -fx-border-color: rgba(50, 50, 50, 1.0);        /* grey outline */
+    -fx-border-width: 0.5;
+}
+#resolutionCombo .list-cell:selected {
+    -fx-background-color: rgba(255, 244, 217, 0.3);
+    -fx-text-fill: #f0ad00;
+}
+#resolutionCombo .arrow-button .arrow {
+    -fx-background-color: #f0ad00;
+}
+
+/* Resolution ComboBox selected text */
+#resolutionCombo .list-cell:selected .text {
+    -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,1.0), 1, 1.0, 1, 1);
+}
+
+/* Volume Slider (Green theme) */
+#volumeSlider {
+    -fx-control-inner-background: transparent;
+}
+#volumeSlider .track {
+    -fx-background-color: #517d19; /* track color */
+    -fx-background-radius: 1em;
+}
+#volumeSlider .thumb {
+    -fx-background-color: #517d19; /* handle color */
+    -fx-background-radius: 50%;
+    -fx-pref-width: 14;
+    -fx-pref-height: 14;
+    -fx-effect: dropshadow(one-pass-box, #000000, 5, 1.0, 0, 0);
+    -fx-shape: "M0,-10 L8.66,-5 L8.66,5 L0,10 L-8.66,5 L-8.66,-5 Z"; /* Hexagon path */
+}
+
+/* Language Label (Red theme) */
+#languageLabel {
+    -fx-text-fill: #e43b29;
+    -fx-effect: dropshadow(one-pass-box, #000000, 2, 1.0, 2, 2);
+}
+
+/* Text Size Label (Blue theme) */
+#textSizeLabel {
+    -fx-text-fill: #4fa6eb;
+    -fx-effect: dropshadow(one-pass-box, #000000, 2, 1.0, 2, 2);
+}
+
+/* Resolution Label (Yellow theme) */
+#resolutionLabel {
+    -fx-text-fill: #f0ad00;
+        -fx-effect: dropshadow(one-pass-box, #000000, 2, 1.0, 2, 2);
+}
+
+/* Volume Label (Green theme) */
+#volumeLabel {
+    -fx-text-fill: #517d19;
+        -fx-effect: dropshadow(one-pass-box, #000000, 2, 1.0, 2, 2);
+}
 

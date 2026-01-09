@@ -26,7 +26,7 @@
                 <Label text="T" styleClass="title-t"/>
                 
                 <!-- Indstrializers of Text -->
-                <Label text="Industrializers of" styleClass="title-accent"/>
+                <Label text="Industrialists of" styleClass="title-accent"/>
                 
                 <!-- empra -->
                 <Label text="empra" styleClass="title-rest"/>
@@ -54,7 +54,7 @@
                 </HBox>
 
                 <!-- Settings group -->
-                <HBox fx:id="settingsHBox" spacing="20" alignment="CENTER_LEFT" styleClass="menu-item">
+                <HBox fx:id="settingsHBox" spacing="20" alignment="CENTER_LEFT" styleClass="menu-item" onMouseClicked="#switchToSettings">
                     <Polygon fx:id="settingsHex" styleClass="hexagon" fill="DODGERBLUE" stroke="BLACK" strokeType="INSIDE">
                         <points>
                             <Double fx:value="0"/><Double fx:value="-25"/>
