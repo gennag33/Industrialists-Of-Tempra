@@ -27,4 +27,5 @@ public class Road {
     //setters
     public void setPlayerID(int _playerID){this.playerID = _playerID;}
     public void setVertices(int[] _vertices){this.vertices = _vertices;}
+    public void setBuildID(int _buildID){this.buildID = _buildID;}
 }
