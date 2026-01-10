@@ -322,7 +322,7 @@ public class Roads {
      * @param vertex2 second vertex of the road
      * @return the road index, or -1 if invalid vertices
      */
-    public static getRoadIndex(int vertex1, int vertex2) {
+    public static int getRoadIndex(int vertex1, int vertex2) {
         if (vertex1 > vertex2) { // swap to maintain order; vertex1 <= vertex2
             int temp = vertex1;
             vertex1 = vertex2;
