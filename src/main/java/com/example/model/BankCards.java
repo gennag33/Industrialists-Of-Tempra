@@ -2,6 +2,7 @@ package com.example.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import static java.util.Collections.shuffle;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,11 +20,20 @@ public class BankCards {
     //each resource card starts with 19
     //dev cards start at 25
     public BankCards() {
+        initilizeResourceCards();
+        initilizeDevelopmentCards();
+        shuffleDevelopmentCards();
+    }
+
+    private void initilizeResourceCards() {
         resourceCards = new HashMap<>();
         Collection<ResourceConfig> resources= ConfigService.getAllResources();
         for (ResourceConfig resource : resources) {
             resourceCards.put(resource.id, resource.maxQuantity);
         }
+    }
+
+    private void initilizeDevelopmentCards() {
         developmentCards = new ArrayList<String>();
         Collection<DevCardConfig> devCards = ConfigService.getAllDevCards();
         for (DevCardConfig devCard : devCards) {
@@ -31,6 +41,10 @@ public class BankCards {
                 developmentCards.add(devCard.id);
             }
         }
+    }
+
+    private void shuffleDevelopmentCards() {
+      shuffle(developmentCards);
     }
 
     //get how many cards of a type are left
