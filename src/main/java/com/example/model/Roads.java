@@ -1,5 +1,10 @@
 package com.example.model;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * Roads Class; stores all road objects and manages road building
  * @author 40452739
@@ -8,8 +13,8 @@ public class Roads {
 
     public static int minimumLongestRoadLength = 3; // minimum length for longest road
     
-    private static final int NUMBER_OF_ROADS = 72; // number of unique edges on the board
-    private static final int UNOWNED_ROAD_ID = -1;
+    public static final int NUMBER_OF_ROADS = 72; // number of unique edges on the board
+    public static final int UNOWNED_ROAD_ID = -1;
     
     private int nextBuildID = 1; // ID to assign to the next built road
 
@@ -20,7 +25,7 @@ public class Roads {
         roads = new Road[NUMBER_OF_ROADS];
 
         for (int i = 0; i < NUMBER_OF_ROADS; i++) {
-            roads[i] = new Road(Roads.UNOWNED_ROAD_ID, Roads.roads[i], 0);
+            roads[i] = new Road(Roads.UNOWNED_ROAD_ID, Roads.roadConnections[i], 0);
         }
 
         trackedPlayerIDS = new ArrayList<>();
@@ -110,11 +115,10 @@ public class Roads {
      * Attempts to remove a road at the specified vertices for the given player.
      * @param vertex1   First vertex of the road to remove
      * @param vertex2   Second vertex of the road to remove
-     * @param playerID  ID of the player removing the road
      * @return          true if the road was successfully removed; false otherwise
      * @throws IndexOutOfBoundsException if the vertices are invalid
      */
-    public boolean removeRoad(int vertex1, int vertex2, int playerID) {
+    public boolean removeRoad(int vertex1, int vertex2) {
         int index = getRoadIndex(vertex1, vertex2);
         if (!isValidRoadIndex(index)) {
             throw new IndexOutOfBoundsException("Invalid road vertices: " + vertex1 + ", " + vertex2);
@@ -123,6 +127,7 @@ public class Roads {
         if (roads[index].getPlayerID() == UNOWNED_ROAD_ID) {
             return false; // road is already unowned
         }
+        int playerID = roads[index].getPlayerID();
         roads[index].setPlayerID(UNOWNED_ROAD_ID);
 
         // Check if player still owns any roads to update trackedPlayerIDS
@@ -153,9 +158,11 @@ public class Roads {
         if (roads[index].getPlayerID() == UNOWNED_ROAD_ID) {
             return false; // road is already unowned
         }
+        int playerID = roads[index].getPlayerID();
         roads[index].setPlayerID(UNOWNED_ROAD_ID);
 
         // Check if player still owns any roads to update trackedPlayerIDS
+    
         boolean playerStillOwnsRoads = false;
         for (int i = 0; i < NUMBER_OF_ROADS; i++) {
             if (roads[i].getPlayerID() == playerID) {
@@ -287,7 +294,7 @@ public class Roads {
 
             if (r.length < minimumLongestRoadLength) continue;
 
-            if (isBetter(r.length, r.maxBuildID, bestLength, bestMaxBuild)) {
+            if (isBetterRoad(r.length, r.maxBuildID, bestLength, bestMaxBuild)) {
                 bestLength = r.length;
                 bestMaxBuild = r.maxBuildID;
                 bestPlayer = playerID;
@@ -329,7 +336,7 @@ public class Roads {
             vertex2 = temp;
         }
         for (int i = 0; i < NUMBER_OF_ROADS; i++) {
-            int[] roadVertices = Roads.roads[i];
+            int[] roadVertices = Roads.roadConnections[i];
             if ((roadVertices[0] == vertex1 && roadVertices[1] == vertex2)) {
                 return i;
             }
@@ -351,27 +358,28 @@ public class Roads {
             vertex2 = temp;
         }
         for (int i = 0; i < NUMBER_OF_ROADS; i++) {
-            int[] roadVertices = roads[i];
+            int[] roadVertices = roadConnections[i];
             if ((roadVertices[0] == vertex1 && roadVertices[1] == vertex2)) {
                 return true;
             }
         }
         return false;
     }
-}
 
-// the two vertices that each road connects; 72 roads total
-public static final int[][] roads = {
-    {0, 1}, {1, 2}, {2, 3}, {3, 4}, {4, 5}, {5, 6}, // 1st line
-    {0, 8}, {2, 10}, {4, 12}, {6, 14}, // 1st verticals
-    {7, 8}, {8, 9}, {9, 10}, {10, 11}, {11, 12}, {12, 13}, {13, 14}, {14, 15}, // 2nd line
-    {7, 17}, {9, 19}, {11, 21}, {13, 23}, {15, 25}, // 2nd verticals
-    {16, 17}, {17, 18}, {18, 19}, {19, 20}, {20, 21}, {21, 22}, {22, 23}, {23, 24}, {24, 25}, {25, 26}, // 3rd line
-    {16, 27}, {18, 29}, {20, 31}, {22, 33}, {24, 35}, {26, 37}, // 3rd verticals
-    {27, 28}, {28, 29}, {29, 30}, {30, 31}, {31, 32}, {32, 33}, {33, 34}, {34, 35}, {35, 36}, {36, 37}, // 4th line
-    {28, 38}, {30, 40}, {32, 42}, {34, 44}, {36, 46}, // 4th verticals
-    {38, 39}, {39, 40}, {40, 41}, {41, 42}, {42, 43}, {43, 44}, {44, 45}, {45, 46}, // 5th line
-    {39, 47}, {41, 49}, {43, 51}, {45, 53},  // 5th verticals
-    {47, 48}, {48, 49}, {49, 50}, {50, 51}, {51, 52}, {52, 53}  // 6th (final) line
-    
+
+    // the two vertices that each road connects; 72 roads total
+    public static final int[][] roadConnections = {
+        {0, 1}, {1, 2}, {2, 3}, {3, 4}, {4, 5}, {5, 6}, // 1st line
+        {0, 8}, {2, 10}, {4, 12}, {6, 14}, // 1st verticals
+        {7, 8}, {8, 9}, {9, 10}, {10, 11}, {11, 12}, {12, 13}, {13, 14}, {14, 15}, // 2nd line
+        {7, 17}, {9, 19}, {11, 21}, {13, 23}, {15, 25}, // 2nd verticals
+        {16, 17}, {17, 18}, {18, 19}, {19, 20}, {20, 21}, {21, 22}, {22, 23}, {23, 24}, {24, 25}, {25, 26}, // 3rd line
+        {16, 27}, {18, 29}, {20, 31}, {22, 33}, {24, 35}, {26, 37}, // 3rd verticals
+        {27, 28}, {28, 29}, {29, 30}, {30, 31}, {31, 32}, {32, 33}, {33, 34}, {34, 35}, {35, 36}, {36, 37}, // 4th line
+        {28, 38}, {30, 40}, {32, 42}, {34, 44}, {36, 46}, // 4th verticals
+        {38, 39}, {39, 40}, {40, 41}, {41, 42}, {42, 43}, {43, 44}, {44, 45}, {45, 46}, // 5th line
+        {39, 47}, {41, 49}, {43, 51}, {45, 53},  // 5th verticals
+        {47, 48}, {48, 49}, {49, 50}, {50, 51}, {51, 52}, {52, 53}  // 6th (final) line
+        
+    };
 }

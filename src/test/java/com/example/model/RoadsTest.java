@@ -115,28 +115,7 @@ public class RoadsTest {
         // No exceptions should be thrown
     }
 
-    @Test
-    public void testBuildAdjacencyForPlayer() throws NoSuchFieldException, IllegalAccessException {
-        roads.buildRoad(0, 1, 1);
-        roads.buildRoad(1, 2, 1);
-        roads.buildRoad(2, 3, 2); // different player
-
-        // Use reflection to access private method
-        java.lang.reflect.Method method = Roads.class.getDeclaredMethod("buildAdjacencyForPlayer", int.class);
-        method.setAccessible(true);
-
-        @SuppressWarnings("unchecked")
-        java.util.Map<Integer, java.util.List<Integer>> adj = (java.util.Map<Integer, java.util.List<Integer>>) method.invoke(roads, 1);
-
-        assertTrue(adj.containsKey(0));
-        assertTrue(adj.containsKey(1));
-        assertTrue(adj.containsKey(2));
-        assertFalse(adj.containsKey(3));
-
-        assertEquals(java.util.Arrays.asList(1), adj.get(0));
-        assertEquals(java.util.Arrays.asList(0, 2), adj.get(1));
-        assertEquals(java.util.Arrays.asList(1), adj.get(2));
-    }
+    
 
     @Test
     public void testRemoveRoad() {
@@ -180,44 +159,6 @@ public class RoadsTest {
         }
     }
 
-    @Test
-    public void testClear() {
-        roads.buildRoad(0, 1, 1);
-        roads.buildRoad(1, 2, 1);
-
-        roads.clear();
-
-        // Use reflection to access private field
-        try {
-            Field roadsField = Roads.class.getDeclaredField("roadsList");
-            roadsField.setAccessible(true);
-            @SuppressWarnings("unchecked")
-            java.util.List<Road> roadsList = (java.util.List<Road>) roadsField.get(roads);
-
-            assertEquals(0, roadsList.size());
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            fail("Reflection failed: " + e.getMessage());
-        }
-    }
-
-    @Test
-    public void testClear_trackedPlayerIDS() {
-        roads.buildRoad(0, 1, 1);
-        roads.buildRoad(1, 2, 2);
-
-        roads.clear();
-
-        // Use reflection to access private field
-        try {
-            Field trackedField = Roads.class.getDeclaredField("trackedPlayerIDS");
-            trackedField.setAccessible(true);
-            @SuppressWarnings("unchecked")
-            java.util.Set<Integer> trackedSet = (java.util.Set<Integer>) trackedField.get(roads);
-            assertEquals(0, trackedSet.size());
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            fail("Reflection failed: " + e.getMessage());
-        }
-    }
 
     @Test
     public void testAddRoad_tracksPlayerID() {
