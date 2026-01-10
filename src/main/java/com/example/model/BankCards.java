@@ -13,7 +13,7 @@ public class BankCards {
 
     //store how many of each resource card are left and how many dev cards
     private Map<String, Integer> resourceCards;
-    private ArrayList<String> developmentCards;
+    private ArrayList<String> developmentCards; 
 
     //constructor
     //each resource card starts with 19
@@ -27,7 +27,9 @@ public class BankCards {
         developmentCards = new ArrayList<String>();
         Collection<DevCardConfig> devCards = ConfigService.getAllDevCards();
         for (DevCardConfig devCard : devCards) {
-            developmentCards.add(devCard.id);
+            for (int i = 0; i < devCard.count; i++) {
+                developmentCards.add(devCard.id);
+            }
         }
     }
 
