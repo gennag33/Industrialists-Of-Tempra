@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.example.model.config.DevCardConfig;
+import com.example.model.config.DisasterCardConfig;
 import com.example.model.config.ResourceConfig;
 import com.example.model.config.service.ConfigService;
 
@@ -14,7 +15,8 @@ public class BankCards {
 
     //store how many of each resource card are left and how many dev cards
     private Map<String, Integer> resourceCards;
-    private ArrayList<String> developmentCards; 
+    private ArrayList<String> developmentCards;
+    private ArrayList<String> disasterCards;
 
     //constructor
     //each resource card starts with 19
@@ -22,7 +24,9 @@ public class BankCards {
     public BankCards() {
         initilizeResourceCards();
         initilizeDevelopmentCards();
-        shuffleDevelopmentCards();
+        initilizeDisasterCards();
+        shuffle(developmentCards);
+        shuffle(disasterCards);
     }
 
     private void initilizeResourceCards() {
@@ -43,8 +47,14 @@ public class BankCards {
         }
     }
 
-    private void shuffleDevelopmentCards() {
-      shuffle(developmentCards);
+    private void initilizeDisasterCards() {
+        disasterCards = new ArrayList<String>();
+        Collection<DisasterCardConfig> disasterCardsConfig = ConfigService.getAllDisasterCards();
+        for (DisasterCardConfig disasterCard : disasterCardsConfig) {
+            for (int i = 0; i < disasterCard.count; i++) {
+                disasterCards.add(disasterCard.id);
+            }
+        }
     }
 
     //get how many cards of a type are left
@@ -67,6 +77,14 @@ public class BankCards {
     public boolean giveDevelopmentCard() {
         if (developmentCards.size() > 0) {
             developmentCards.remove(developmentCards.size()-1);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean giveDisasterCard() {
+        if (disasterCards.size() > 0) {
+            disasterCards.remove(disasterCards.size()-1);
             return true;
         }
         return false;

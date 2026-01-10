@@ -1,6 +1,7 @@
 package com.example.model.config;
 
 import com.example.model.config.registry.DevCardRegistry;
+import com.example.model.config.registry.DisasterCardRegistry;
 import com.example.model.config.registry.GameRulesRegistry;
 import com.example.model.config.registry.PlayerInfrastructureRegistry;
 import com.example.model.config.registry.PortRegistry;
@@ -26,6 +27,7 @@ public final class ConfigManager {
         PortRegistry.getInstance().load(mapper);
         PlayerInfrastructureRegistry.getInstance().load(mapper);
         TileRegistry.getInstance().load(mapper);
+        DisasterCardRegistry.getInstance().load(mapper);
 
         LangManager.load(mapper, "en_us");
 
@@ -40,6 +42,7 @@ public final class ConfigManager {
         PortRegistry.getInstance().unload();
         PlayerInfrastructureRegistry.getInstance().unload();
         TileRegistry.getInstance().unload();
+        DisasterCardRegistry.getInstance().unload();
     }
 
     /** Validate that all configs are internally consistent */
