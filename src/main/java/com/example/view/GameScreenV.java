@@ -546,18 +546,6 @@ public class GameScreenV
 
         System.out.println("Catan board created with resources and number tokens.");
     }
-
-    private void createRoadLocations(Pane boardPane)
-    {
-
-    }
-
-    // TELL WHAT ID FORM IT IS
-    private void createNumTokens(Pane boardPane)
-    {
-
-    }
-
     
     private Polygon createHex(double width, double height) {
         Polygon hex = new Polygon();
