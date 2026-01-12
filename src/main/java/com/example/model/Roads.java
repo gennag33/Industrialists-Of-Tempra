@@ -19,7 +19,6 @@ public class Roads {
     private int nextBuildID = 1; // ID to assign to the next built road
 
     private Road[] roads; // array of all road objects; starts filled with unowned roads
-    private ArrayList<Integer> trackedPlayerIDS; // list of player IDs who own at least one road
 
     public Roads() {
         roads = new Road[NUMBER_OF_ROADS];
@@ -27,8 +26,6 @@ public class Roads {
         for (int i = 0; i < NUMBER_OF_ROADS; i++) {
             roads[i] = new Road(Roads.UNOWNED_ROAD_ID, Roads.roadConnections[i], 0);
         }
-
-        trackedPlayerIDS = new ArrayList<>();
     }
     
     /**
@@ -63,9 +60,7 @@ public class Roads {
             if (roads[index].getPlayerID() == UNOWNED_ROAD_ID) {
                 roads[index].setPlayerID(playerID);
                 roads[index].setBuildID(nextBuildID++);
-                if (!trackedPlayerIDS.contains(playerID)) {
-                    trackedPlayerIDS.add(playerID);
-                }
+                
                 return true;
             }
             return false; // road already owned
@@ -84,24 +79,13 @@ public class Roads {
             return false; // cannot build road for unowned ID
         }
         int index = getRoadIndex(vertex1, vertex2);
-        if (isValidRoadIndex(index)) {
-            if (roads[index].getPlayerID() == UNOWNED_ROAD_ID) {
-                roads[index].setPlayerID(playerID);
-                roads[index].setBuildID(nextBuildID++); // tracks order of when roads were built
-                if (!trackedPlayerIDS.contains(playerID)) {
-                    trackedPlayerIDS.add(playerID);
-                }
-                return true; // road successfully built
-            }
-            return false; // road already owned
-        }
-        return false; // invalid index
+        return buildRoad(index, playerID);
     }
 
     /**
      * Gets the player ID who owns the road at the specified index
      * @param index index of the road (0 to 71)
-     * @return the player ID who owns the road, or throws exception if invalid index
+     * @return the player ID who owns the road, UNOWNED_ROAD_ID if unowned, or throws exception if invalid index
      * @throws IndexOutOfBoundsException if the index is invalid
      */
     public int ownedByPlayer(int index) {
@@ -112,37 +96,42 @@ public class Roads {
     }
 
     /**
-     * Attempts to remove a road at the specified vertices for the given player.
-     * @param vertex1   First vertex of the road to remove
-     * @param vertex2   Second vertex of the road to remove
-     * @return          true if the road was successfully removed; false otherwise
+     * Gets the player ID who owns the road at the specified vertices
+     * @param vertex1 first vertex of the road
+     * @param vertex2 second vertex of the road
+     * @return the player ID who owns the road, UNOWNED_ROAD_ID if unowned, or throws exception if invalid vertices
      * @throws IndexOutOfBoundsException if the vertices are invalid
      */
-    public boolean removeRoad(int vertex1, int vertex2) {
+    public int ownedByPlayer(int vertex1, int vertex2) {
         int index = getRoadIndex(vertex1, vertex2);
-        if (!isValidRoadIndex(index)) {
-            throw new IndexOutOfBoundsException("Invalid road vertices: " + vertex1 + ", " + vertex2);
-        }
-
-        if (roads[index].getPlayerID() == UNOWNED_ROAD_ID) {
-            return false; // road is already unowned
-        }
-        int playerID = roads[index].getPlayerID();
-        roads[index].setPlayerID(UNOWNED_ROAD_ID);
-
-        // Check if player still owns any roads to update trackedPlayerIDS
-        boolean playerStillOwnsRoads = false;
-        for (int i = 0; i < NUMBER_OF_ROADS; i++) {
-            if (roads[i].getPlayerID() == playerID) {
-                playerStillOwnsRoads = true;
-                break;
-            }
-        }
-        if (!playerStillOwnsRoads) {
-            trackedPlayerIDS.remove(Integer.valueOf(playerID));
-        }
-        return true;
+        return ownedByPlayer(index);
     }
+
+    /**
+     * Checks if the road at the specified index is owned by any player
+     * @param index index of the road (0 to 71)
+     * @return true if the road is owned; false if unowned
+     * @throws IndexOutOfBoundsException if the index is invalid
+     */
+    public boolean isRoadOwned(int index) {
+        if (isValidRoadIndex(index)) {
+            return roads[index].getPlayerID() != UNOWNED_ROAD_ID;
+        }
+        throw new IndexOutOfBoundsException("Invalid road index: " + index);
+    }
+
+    /**
+     * Checks if the road at the specified vertices is owned by any player
+     * @param vertex1 first vertex of the road
+     * @param vertex2 second vertex of the road
+     * @return true if the road is owned; false if unowned
+     * @throws IndexOutOfBoundsException if the vertices are invalid
+     */
+    public boolean isRoadOwned(int vertex1, int vertex2) {
+        int index = getRoadIndex(vertex1, vertex2);
+        return isRoadOwned(index);
+    }
+
 
     /**
      * Attempts to remove a road at the specified index for the given player.
@@ -158,22 +147,20 @@ public class Roads {
         if (roads[index].getPlayerID() == UNOWNED_ROAD_ID) {
             return false; // road is already unowned
         }
-        int playerID = roads[index].getPlayerID();
         roads[index].setPlayerID(UNOWNED_ROAD_ID);
-
-        // Check if player still owns any roads to update trackedPlayerIDS
-    
-        boolean playerStillOwnsRoads = false;
-        for (int i = 0; i < NUMBER_OF_ROADS; i++) {
-            if (roads[i].getPlayerID() == playerID) {
-                playerStillOwnsRoads = true;
-                break;
-            }
-        }
-        if (!playerStillOwnsRoads) {
-            trackedPlayerIDS.remove(Integer.valueOf(playerID));
-        }
         return true;
+    }
+
+        /**
+     * Attempts to remove a road at the specified vertices for the given player.
+     * @param vertex1   First vertex of the road to remove
+     * @param vertex2   Second vertex of the road to remove
+     * @return          true if the road was successfully removed; false otherwise
+     * @throws IndexOutOfBoundsException if the vertices are invalid
+     */
+    public boolean removeRoad(int vertex1, int vertex2) {
+        int index = getRoadIndex(vertex1, vertex2);
+        return removeRoad(index);
     }
 
     /**
@@ -284,12 +271,12 @@ public class Roads {
      * Gets the player ID who currently owns the longest road
      * @return player ID of the longest road owner, or UNOWNED_ROAD_ID if none
      */
-    public int longestRoadOwner() {
+    public int longestRoadOwner(int[] playerIDs) {
         int bestPlayer = UNOWNED_ROAD_ID;
         int bestLength = 0;
         int bestMaxBuild = Integer.MAX_VALUE;
 
-        for (int playerID : trackedPlayerIDS) {
+        for (int playerID : playerIDs) {
             PathResult r = getBestRoadForPlayer(playerID);
 
             if (r.length < minimumLongestRoadLength) continue;
@@ -307,17 +294,17 @@ public class Roads {
      * Checks if there is a longest road currently owned by any player
      * @return whether a longest road exists
      */
-    public boolean longestRoadExists() {
-        return longestRoadOwner() != UNOWNED_ROAD_ID;
+    public boolean longestRoadExists(int[] playerIDs) {
+        return longestRoadOwner(playerIDs) != UNOWNED_ROAD_ID;
     }
 
     /**
      * Gets the length of the current longest road owned by any player
      * @return length of the longest road
      */
-    public int getLongestRoadLength() {
+    public int getLongestRoadLength(int[] playerIDs) {
         int best = 0;
-        for (int playerID : trackedPlayerIDS) {
+        for (int playerID : playerIDs) {
             best = Math.max(best, getBestRoadForPlayer(playerID).length);
         }
         return best;

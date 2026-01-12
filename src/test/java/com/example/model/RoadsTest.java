@@ -21,7 +21,8 @@ public class RoadsTest {
 
     @Test
     public void testLongestRoadOwner_noRoads() {
-        assertEquals(Roads.UNOWNED_ROAD_ID, roads.longestRoadOwner());
+        int[] a = {};
+        assertEquals(Roads.UNOWNED_ROAD_ID, roads.longestRoadOwner(a));
     }
 
     @Test
@@ -31,8 +32,8 @@ public class RoadsTest {
         roads.buildRoad(0, 1, 1);
         roads.buildRoad(1, 2, 1);
         roads.buildRoad(2, 3, 1);
-
-        assertEquals(1, roads.longestRoadOwner());
+        int[] playerIDs = {1};
+        assertEquals(1, roads.longestRoadOwner(playerIDs));
         Roads.minimumLongestRoadLength = save; // restore original value
     }
 
@@ -51,7 +52,8 @@ public class RoadsTest {
         roads.buildRoad(6, 7, 2);
         roads.buildRoad(7, 8, 2);
 
-        assertEquals(2, roads.longestRoadOwner());
+        int[] playerIDs = {1, 2};
+        assertEquals(2, roads.longestRoadOwner(playerIDs));
         
         Roads.minimumLongestRoadLength = save; // restore original value
     }
@@ -70,30 +72,36 @@ public class RoadsTest {
         roads.buildRoad(5, 6, 2);
         roads.buildRoad(6, 7, 2);
 
-        assertEquals(1, roads.longestRoadOwner());
+        int[] playerIDs = {1, 2};
+
+        assertEquals(1, roads.longestRoadOwner(playerIDs));
         Roads.minimumLongestRoadLength = save; // restore original value
     }
 
     @Test
     public void testLongestRoadExists() {
-        assertFalse(roads.longestRoadExists());
+        int a[] = {};
+        assertFalse(roads.longestRoadExists(a));
 
         roads.buildRoad(0, 1, 1);
         roads.buildRoad(1, 2, 1);
         roads.buildRoad(2, 3, 1);
+        int[] b = {1};
 
-        assertTrue(roads.longestRoadExists());
+        assertTrue(roads.longestRoadExists(b));
     }
 
     @Test
     public void testGetLongestRoadLength() {
-        assertEquals(0, roads.getLongestRoadLength());
+        int a[] = {};
+        assertEquals(0, roads.getLongestRoadLength(a));
 
         roads.buildRoad(0, 1, 1);
         roads.buildRoad(1, 2, 1);
         roads.buildRoad(2, 3, 1);
+        int[] b = {1};
 
-        assertEquals(3, roads.getLongestRoadLength());
+        assertEquals(3, roads.getLongestRoadLength(b));
     }
 
     @Test
