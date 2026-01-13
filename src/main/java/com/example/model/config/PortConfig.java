@@ -10,6 +10,7 @@ public class PortConfig implements IdentifiableConfig {
     public final String resourceID; // -1 for any
     public final int giveQuantity;
     public final int receiveQuantity;
+    public final int occurrences;
 
     @JsonCreator
     public PortConfig(
@@ -17,12 +18,14 @@ public class PortConfig implements IdentifiableConfig {
             @JsonProperty("texturePath") String texturePath,
             @JsonProperty("resourceID") String resourceID,
             @JsonProperty("giveQuantity") int giveQuantity,
-            @JsonProperty("receiveQuantity") int receiveQuantity) {
+            @JsonProperty("receiveQuantity") int receiveQuantity,
+            @JsonProperty("occurrences") int occurrences) {
         this.id = id;
         this.texturePath = texturePath;
         this.resourceID = resourceID;
         this.giveQuantity = giveQuantity;
         this.receiveQuantity = receiveQuantity;
+        this.occurrences = occurrences;
     }
 
     @Override
