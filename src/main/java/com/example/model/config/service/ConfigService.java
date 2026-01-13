@@ -108,4 +108,15 @@ public class ConfigService {
         }
         return LangManager.get(id + ".description");
     }
+
+    // -------------------------
+    // Disaster Card Config
+    // -------------------------
+    public static DisasterCardConfig getDisasterCard(String id) {
+        return DisasterCardRegistry.getInstance().get(id);
+    }
+
+    public static Collection<DisasterCardConfig> getAllDisasterCards() {
+        return DisasterCardRegistry.getInstance().all();
+    }
 }
