@@ -4,41 +4,47 @@
         "texturePath": "textures/ports/wood_port.png",
         "resourceID": "resource.wood",
         "giveQuantity": 2,
-        "receiveQuantity": 1
+        "receiveQuantity": 1,
+        "occurrences": 1
     },
     {
         "id": "port.brick",
         "texturePath": "textures/ports/brick_port.png",
         "resourceID": "resource.brick",
         "giveQuantity": 2,
-        "receiveQuantity": 1
+        "receiveQuantity": 1,
+        "occurrences": 1
     },
     {
         "id": "port.sheep",
         "texturePath": "textures/ports/sheep_port.png",
         "resourceID": "resource.sheep",
         "giveQuantity": 2,
-        "receiveQuantity": 1
+        "receiveQuantity": 1,
+        "occurrences": 1
     },
     {
         "id": "port.wheat",
         "texturePath": "textures/ports/wheat_port.png",
         "resourceID": "resource.wheat",
         "giveQuantity": 2,
-        "receiveQuantity": 1
+        "receiveQuantity": 1,
+        "occurrences": 1
     },
     {
         "id": "port.ore",
         "texturePath": "textures/ports/ore_port.png",
         "resourceID": "resource.ore",
         "giveQuantity": 2,
-        "receiveQuantity": 1
+        "receiveQuantity": 1,
+        "occurrences": 1
     },
     {
         "id": "port.generic",
         "texturePath": "textures/ports/generic_port.png",
         "resourceID": "",
         "giveQuantity": 3,
-        "receiveQuantity": 1
+        "receiveQuantity": 1,
+        "occurrences": 4
     }
 ]
