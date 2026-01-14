@@ -13,7 +13,7 @@ import javafx.scene.control.Slider;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 
-public class SettingsV {
+public class SettingsController {
     
     @FXML
     private Canvas hexCanvas;

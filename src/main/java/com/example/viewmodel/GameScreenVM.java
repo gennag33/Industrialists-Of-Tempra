@@ -1,11 +1,8 @@
 package com.example.viewmodel;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.example.model.Tile;
 import com.example.model.Tiles;
-import com.example.view.GameScreenV;
+import com.example.view.GameScreenController;
 
 import javafx.application.Platform;
 import javafx.scene.paint.Color;
@@ -16,12 +13,12 @@ import javafx.scene.paint.Color;
  */
 public final class GameScreenVM {
 
-    private final GameScreenV view;
+    private final GameScreenController view;
     private final Tiles tilesModel;
     private final Tile[] tiles;
 
 
-    public GameScreenVM(GameScreenV view) {
+    public GameScreenVM(GameScreenController view) {
         this.view = view;
         this.tilesModel = new Tiles();
         this.tiles = tilesModel.getTiles();

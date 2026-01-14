@@ -22,7 +22,7 @@ import javafx.util.Duration;
 import javafx.scene.layout.HBox;
 import javafx.scene.input.MouseEvent;
 
-public class TitleScreenV {
+public class TitleScreenController {
 
     @FXML
     private Polygon playHex, settingsHex, exitHex;

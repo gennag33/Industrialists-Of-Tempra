@@ -25,7 +25,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.Group;
 
-public class GameScreenV 
+public class GameScreenController 
 {
     @FXML
     private Font oswaldFont;

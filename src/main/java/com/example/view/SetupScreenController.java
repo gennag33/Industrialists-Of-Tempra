@@ -23,7 +23,7 @@ import javafx.scene.shape.Polygon;
 import javafx.util.Duration;
 import javafx.scene.control.TextField;
 
-public class SetupScreenV {
+public class SetupScreenController {
 
     @FXML
     private Canvas hexCanvas;
@@ -351,7 +351,7 @@ public class SetupScreenV {
             String[] playerNames = getPlayerNames(numPlayers);
 
             // Store names before loading screen
-            GameScreenV.setNextPlayerNames(playerNames);
+            GameScreenController.setNextPlayerNames(playerNames);
 
             // Switch screens
             App.setRoot("gameScreen");
