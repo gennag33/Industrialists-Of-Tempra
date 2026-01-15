@@ -1,5 +1,6 @@
 package com.example.model.cards;
 import com.example.model.GameModel;
+import com.example.model.cards.interfaces.CardAction;
 
 public class MonopolyCard implements CardAction {
 
