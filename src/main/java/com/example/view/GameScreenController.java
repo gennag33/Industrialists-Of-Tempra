@@ -6,7 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.example.viewmodel.GameScreenVM;
+import com.example.viewmodel.GameViewModel;
+import com.example.viewmodel.TileViewState;
+import com.example.viewmodel.VertexViewState;
+import com.example.viewmodel.PlayerViewState;
 
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
@@ -25,40 +28,101 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.Group;
 
-public class GameScreenController 
-{
+public class GameScreenController implements ViewModelAware<GameViewModel> {
+    private GameViewModel viewModel;
+
     @FXML
     private Font oswaldFont;
-
     @FXML
     private Pane vertexPane;
-
     @FXML
-    private Pane borderPane;  
-
+    private Pane borderPane;
     @FXML
     private Polygon mainPentagon;
-
     @FXML
     private Pane rootPane, catanBoardPane;
-
     @FXML
     private Label player1Display, player2Display, player3Display, currentPlayerDisplay;
-
     // Static holder for names before screen loads
-    private static String[] playerNames;
-
     private Shape[] vertexNodes = new Shape[54]; // can hold Circle or Rectangle
 
-    // Called from Setup screen before switching
-    public static void setNextPlayerNames(String[] names) {
-        playerNames = names;
+    @Override
+    public void setViewModel(GameViewModel viewModel) {
+        this.viewModel = viewModel;
+
+        bindViewModel();
+    }
+
+    private void bindViewModel() {
+        for (int i = 0; i < tileGroup.length; i++) {
+            bindTile(i, viewModel.tilesProperty().get(i));
+        }
+
+        for (int i = 0; i < vertexNodes.length; i++) {
+            bindVertex(i, viewModel.verticesProperty().get(i));
+        }
+
+        setupAllVertices(viewModel.getTileVertices());
+
+        ObservableList<PlayerViewState> players = viewModel.playersProperty();
+        player1Display.textProperty().bind(players.get(0).nameProperty());
+        player2Display.textProperty().bind(players.get(1).nameProperty());
+        player3Display.textProperty().bind(players.get(2).nameProperty());
+        currentPlayerDisplay.textProperty().bind(players.get(3).nameProperty() != null ? players.get(3).nameProperty() : players.get(0).nameProperty());
+    }
+
+    private void bindTile(int index, TileViewState state) {
+        state.number.addListener((obs, old, val) -> {
+            setTile(index, val.intValue(), resolveColor(state.resource.get()));
+        });
+
+        setTile(index, state.number.get(), resolveColor(state.resource.get()));
+    }
+
+    private void bindVertex(int id, VertexViewState state) {
+        state.type.addListener((obs, old, type) -> {
+            setVertex(id, state.owner.get(), type.intValue());
+        });
+
+        setVertex(id, state.owner.get(), state.type.get());
+    }
+
+    private Color resolveColor(String type) {
+        return switch (type) {
+            case "tile.forest" -> Color.FORESTGREEN;
+            case "tile.hills" -> Color.ORANGERED;
+            case "tile.desert" -> Color.rgb(198, 170, 71);
+            case "tile.mountains" -> Color.GRAY;
+            case "tile.fields" -> Color.GOLD;
+            case "tile.pasture" -> Color.GREEN;
+            default -> Color.LIGHTGRAY;
+        };
+    }
+
+    @FXML
+    public void initialize() {
+
+        // Load Oswald font from classpath
+        InputStream fontStream = getClass().getResourceAsStream("/fonts/Oswald-Regular.ttf");
+        if (fontStream != null) {
+            oswaldFont = Font.loadFont(fontStream, 20); // set font size
+            System.out.println("Oswald font loaded successfully.");
+        } else {
+            System.out.println("Failed to load Oswald font, using default.");
+            oswaldFont = Font.font(20);
+        }
+
+        mainPentagon.setTranslateX(-rootPane.getWidth() / 2);
+        mainPentagon.setTranslateY(-rootPane.getHeight() / 2);
+
+        System.out.println("GameScreenV initialized"); // Debug
+
+        createCatanBoard(rootPane);
     }
 
     private Group[] tileGroup = new Group[19];
 
-    private Group createTile(double width, double height, int numberToken, Color resourceColor) 
-    {
+    private Group createTile(double width, double height, int numberToken, Color resourceColor) {
         Group tile = new Group();
 
         // --- MAIN HEX ---
@@ -102,23 +166,19 @@ public class GameScreenController
 
         // Center border hex behind the tile
         borderHex.layoutXProperty().bind(
-            tile.layoutXProperty()
-                .subtract((borderHex.getBoundsInLocal().getWidth() - width) / 2)
-        );
+                tile.layoutXProperty()
+                        .subtract((borderHex.getBoundsInLocal().getWidth() - width) / 2));
 
         borderHex.layoutYProperty().bind(
-            tile.layoutYProperty()
-                .subtract((borderHex.getBoundsInLocal().getHeight() - height) / 2)
-        );
-
+                tile.layoutYProperty()
+                        .subtract((borderHex.getBoundsInLocal().getHeight() - height) / 2));
 
         borderPane.getChildren().add(borderHex);
 
         return tile;
     }
 
-    private void setupAllVertices(int[][] tileVertices) 
-    {
+    private void setupAllVertices(int[][] tileVertices) {
         vertexPane.toFront(); // Ensure vertex layer is above everything
 
         // Map vertexId -> list of hexes it belongs to
@@ -128,7 +188,8 @@ public class GameScreenController
         // Step 1: Collect hexes and local corner positions
         for (int tileIndex = 0; tileIndex < tileVertices.length; tileIndex++) {
             Group tile = tileGroup[tileIndex];
-            if (tile == null) continue;
+            if (tile == null)
+                continue;
 
             Polygon hex = (Polygon) tile.getChildren().get(0);
             ObservableList<Double> pts = hex.getPoints();
@@ -148,13 +209,15 @@ public class GameScreenController
                 double cornerY = pts.get(i * 2 + 1);
 
                 vertexHexMap.computeIfAbsent(vertexId, k -> new ArrayList<>()).add(tile);
-                vertexLocalCorners.computeIfAbsent(vertexId, k -> new ArrayList<>()).add(new double[]{cornerX, cornerY, centerX, centerY});
+                vertexLocalCorners.computeIfAbsent(vertexId, k -> new ArrayList<>())
+                        .add(new double[] { cornerX, cornerY, centerX, centerY });
             }
         }
 
         // Step 2: Place each vertex
         for (int vertexId = 0; vertexId < vertexNodes.length; vertexId++) {
-            if (!vertexLocalCorners.containsKey(vertexId)) continue;
+            if (!vertexLocalCorners.containsKey(vertexId))
+                continue;
 
             List<double[]> corners = vertexLocalCorners.get(vertexId);
             double avgX = 0, avgY = 0;
@@ -169,8 +232,8 @@ public class GameScreenController
                 double dx = cornerX - centerX;
                 double dy = cornerY - centerY;
 
-                // Push outward a little 
-                double pushFactor = 0.25; 
+                // Push outward a little
+                double pushFactor = 0.25;
                 double pushedX = cornerX + dx * pushFactor;
                 double pushedY = cornerY + dy * pushFactor;
 
@@ -207,8 +270,7 @@ public class GameScreenController
         }
     }
 
-    private Group createPips(int numberToken) 
-    {
+    private Group createPips(int numberToken) {
         Group pips = new Group();
 
         int dotCount = switch (numberToken) {
@@ -235,102 +297,98 @@ public class GameScreenController
         }
 
         // Center the pips group
-        //pips.setLayoutX(120 / 2); // half hex width
-        //pips.setLayoutY(120 / 2 + 18); // vertical offset like before
+        // pips.setLayoutX(120 / 2); // half hex width
+        // pips.setLayoutY(120 / 2 + 18); // vertical offset like before
 
         return pips;
     }
 
-    public void setTile(int index, int numberToken, Color resourceColor) 
-    {
-        
-        if (!isValidIndex(index)) return;
+    private void setTile(int index, int numberToken, Color resourceColor) {
+        if (!isValidIndex(index)) {
+            return;
+        }
 
-        Platform.runLater(() -> {
-            Group tile = tileGroup[index];
+        Group tile = tileGroup[index];
 
-            Polygon hex = (Polygon) tile.getChildren().get(0);
-            StackPane numberPane = (StackPane) tile.getChildren().get(1);
+        Polygon hex = (Polygon) tile.getChildren().get(0);
+        StackPane numberPane = (StackPane) tile.getChildren().get(1);
 
-            Text outlineText = (Text) numberPane.getChildren().get(0);
-            Text numberText  = (Text) numberPane.getChildren().get(1);
+        Text outlineText = (Text) numberPane.getChildren().get(0);
+        Text numberText = (Text) numberPane.getChildren().get(1);
 
-            // Update main hex color
-            hex.setFill(resourceColor);
+        // Update main hex color
+        hex.setFill(resourceColor);
 
-            // Update number token
-            String tokenStr;
-            if (numberToken == 0) {
-                tokenStr = "";
-            } else if (numberToken == 1) {
-                tokenStr = "R";
-            } else {
-                tokenStr = String.valueOf(numberToken);
-            }
+        // Update number token
+        String tokenStr;
+        if (numberToken == 0) {
+            tokenStr = "";
+        } else if (numberToken == 1) {
+            tokenStr = "R";
+        } else {
+            tokenStr = String.valueOf(numberToken);
+        }
 
-            outlineText.setText(tokenStr);
-            numberText.setText(tokenStr);
-            numberText.setFill(numberToken == 6 || numberToken == 8 ? Color.RED : Color.WHITE);
+        outlineText.setText(tokenStr);
+        numberText.setText(tokenStr);
+        numberText.setFill(numberToken == 6 || numberToken == 8 ? Color.RED : Color.WHITE);
 
-            // Remove old pips (keep border hex and number pane)
-            tile.getChildren().removeIf(n -> n instanceof Group && n != tile.getChildren().get(1) && n != numberPane);
+        // Remove old pips (keep border hex and number pane)
+        tile.getChildren().removeIf(n -> n instanceof Group && n != tile.getChildren().get(1) && n != numberPane);
 
-            // Add new pips
-            Group pips = createPips(numberToken);
-            Bounds b = hex.getBoundsInLocal();
-            pips.setLayoutX(b.getWidth() / 2);
-            pips.setLayoutY(b.getHeight() / 2 + 18);
-            tile.getChildren().add(pips);
-        });
+        // Add new pips
+        Group pips = createPips(numberToken);
+        Bounds b = hex.getBoundsInLocal();
+        pips.setLayoutX(b.getWidth() / 2);
+        pips.setLayoutY(b.getHeight() / 2 + 18);
+        tile.getChildren().add(pips);
     }
 
+    private void setVertex(int vertexId, int playerOwner, int contains) {
+        if (vertexId < 0 || vertexId >= vertexNodes.length || vertexNodes[vertexId] == null) {
+            return;
+        }
 
-    public void setVertex(int vertexId, int playerOwner, int contains) 
-    {
-        if (vertexId < 0 || vertexId >= vertexNodes.length || vertexNodes[vertexId] == null) return;
+        // Remove old node (circle or rectangle)
+        vertexPane.getChildren().remove(vertexNodes[vertexId]);
 
-        Platform.runLater(() -> {
-            // Remove old node (circle or rectangle)
-            vertexPane.getChildren().remove(vertexNodes[vertexId]);
+        // Determine color based on owner
+        Color[] playerColors = { Color.GRAY, Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW };
+        Color fillColor = (playerOwner >= 0 && playerOwner < playerColors.length) ? playerColors[playerOwner]
+                : Color.GRAY;
 
-            // Determine color based on owner
-            Color[] playerColors = {Color.GRAY, Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW};
-            Color fillColor = (playerOwner >= 0 && playerOwner < playerColors.length) ? playerColors[playerOwner] : Color.GRAY;
-
-            // Create new node depending on type
-            if (contains == 1) { // city = square
-                double size = 25;
-                Rectangle city = new Rectangle(size, size);
-                city.setFill(fillColor);
-                city.setStroke(Color.BLACK);
-                city.setStrokeWidth(2);
-                // Center rectangle on vertex coordinates
-                city.setLayoutX(vertexNodes[vertexId].getLayoutX() - size / 2);
-                city.setLayoutY(vertexNodes[vertexId].getLayoutY() - size / 2);
-                vertexNodes[vertexId] = city;
-                vertexPane.getChildren().add(city);
-            } else { // settlement = circle
-                double radius = 12;
-                Circle settlement = new Circle(radius);
-                settlement.setFill(fillColor);
-                settlement.setStroke(Color.BLACK);
-                settlement.setStrokeWidth(2);
-                settlement.setLayoutX(vertexNodes[vertexId].getLayoutX());
-                settlement.setLayoutY(vertexNodes[vertexId].getLayoutY());
-                vertexNodes[vertexId] = settlement;
-                vertexPane.getChildren().add(settlement);
-            }
-        });
+        // Create new node depending on type
+        if (contains == 1) { // city = square
+            double size = 25;
+            Rectangle city = new Rectangle(size, size);
+            city.setFill(fillColor);
+            city.setStroke(Color.BLACK);
+            city.setStrokeWidth(2);
+            // Center rectangle on vertex coordinates
+            city.setLayoutX(vertexNodes[vertexId].getLayoutX() - size / 2);
+            city.setLayoutY(vertexNodes[vertexId].getLayoutY() - size / 2);
+            vertexNodes[vertexId] = city;
+            vertexPane.getChildren().add(city);
+        } else { // settlement = circle
+            double radius = 12;
+            Circle settlement = new Circle(radius);
+            settlement.setFill(fillColor);
+            settlement.setStroke(Color.BLACK);
+            settlement.setStrokeWidth(2);
+            settlement.setLayoutX(vertexNodes[vertexId].getLayoutX());
+            settlement.setLayoutY(vertexNodes[vertexId].getLayoutY());
+            vertexNodes[vertexId] = settlement;
+            vertexPane.getChildren().add(settlement);
+        }
     }
 
-
-    private boolean isValidIndex(int index) 
-    {
+    private boolean isValidIndex(int index) {
         return index >= 0 && index < tileGroup.length && tileGroup[index] != null;
     }
 
     public void highlightTile(int index, boolean highlight) {
-        if (!isValidIndex(index)) return;
+        if (!isValidIndex(index))
+            return;
 
         Platform.runLater(() -> {
             Polygon hex = (Polygon) tileGroup[index].getChildren().get(0);
@@ -339,9 +397,9 @@ public class GameScreenController
         });
     }
 
-    public void setTileDisabled(int index, boolean disabled) 
-    {
-        if (!isValidIndex(index)) return;
+    public void setTileDisabled(int index, boolean disabled) {
+        if (!isValidIndex(index))
+            return;
 
         Platform.runLater(() -> {
             tileGroup[index].setOpacity(disabled ? 1.0 : 1.0);
@@ -349,68 +407,14 @@ public class GameScreenController
         });
     }
 
-    @FXML
-    public void initialize() 
-    {
-
-        // Load Oswald font from classpath
-        InputStream fontStream = getClass().getResourceAsStream("/fonts/Oswald-Regular.ttf");
-        if (fontStream != null) {
-            oswaldFont = Font.loadFont(fontStream, 20); // set font size
-            System.out.println("Oswald font loaded successfully.");
-        } else {
-            System.out.println("Failed to load Oswald font, using default.");
-            oswaldFont = Font.font(20);
-        }
-
-        mainPentagon.setTranslateX(-rootPane.getWidth()/2);
-        mainPentagon.setTranslateY(-rootPane.getHeight()/2);
-
-        System.out.println("GameScreenV initialized"); // Debug
-        if (playerNames != null) {
-            player1Display.setText(playerNames[0]);
-            player2Display.setText(playerNames[1]);
-            player3Display.setText(playerNames[2]);
-            currentPlayerDisplay.setText(playerNames[3] != null ? playerNames[3] : "N/A");
-            System.out.println("Player names set.");
-            playerNames = null;
-        } else {
-            System.out.println("playerNames is null");
-        }
-
-        createCatanBoard(rootPane);
-        
-        GameScreenVM vm = new GameScreenVM(this);
-        vm.pushInitialStateToView();
-
-        vm.updateVertex(36, 1, 0);
-        vm.updateVertex(40, 1, 1);
-
-        vm.updateVertex(12, 2, 1);
-        vm.updateVertex(24, 2, 0);
-
-        vm.updateVertex(3, 3, 0);
-        vm.updateVertex(50, 3, 1);
-
-        vm.updateVertex(0, 4, 1);
-        vm.updateVertex(29, 4, 1);
-
-        // Get the vertices mapping
-        int[][] tileVertices = vm.getTileVertices();
-
-        // Now setup vertices for all tiles
-        setupAllVertices(tileVertices);
-    }
-
-    private void createCatanBoard(Pane boardPane) 
-    {
+    private void createCatanBoard(Pane boardPane) {
         double hexWidth = 120;
         double hexHeight = 120;
         double gap = 25;
         double rightShift = 125;
         double totalHeight = 864;
 
-        int[] rowHexCounts = {3, 4, 5, 4, 3};
+        int[] rowHexCounts = { 3, 4, 5, 4, 3 };
 
         int centerRowIndex = 2;
         double centerRowY = totalHeight / 2;
@@ -422,7 +426,8 @@ public class GameScreenController
         // --- Background ---
         Polygon background = createFlatTopHex(hexWidth * 7.60, totalHeight - 130);
 
-        // I Will want to bring this back at some point, just having a bit of a layering issue 
+        // I Will want to bring this back at some point, just having a bit of a layering
+        // issue
         background.setFill(Color.rgb(57, 69, 147));
         background.setStroke(Color.rgb(7, 4, 60));
         background.setStrokeWidth(3);
@@ -455,8 +460,8 @@ public class GameScreenController
                 Group tile = createTile(
                         hexWidth,
                         hexHeight,
-                        0,                 // placeholder number token
-                        Color.LIGHTGRAY    // placeholder resource
+                        0, // placeholder number token
+                        Color.LIGHTGRAY // placeholder resource
                 );
 
                 tile.setLayoutX(x);
@@ -487,26 +492,24 @@ public class GameScreenController
         double w = width;
         double h = height;
         hex.getPoints().addAll(
-            w/2, 0.0,
-            w, h/4,
-            w, 3*h/4,
-            w/2, h,
-            0.0, 3*h/4,
-            0.0, h/4
-        );
+                w / 2, 0.0,
+                w, h / 4,
+                w, 3 * h / 4,
+                w / 2, h,
+                0.0, 3 * h / 4,
+                0.0, h / 4);
         return hex;
     }
 
-    private Polygon createFlatTopHex(double width, double height) 
-    {
+    private Polygon createFlatTopHex(double width, double height) {
         Polygon hex = new Polygon();
         hex.getPoints().addAll(
-            width / 4, 0.0,         // top-left
-            3 * width / 4, 0.0,     // top-right
-            width, height / 2,      // right
-            3 * width / 4, height,  // bottom-right
-            width / 4, height,      // bottom-left
-            0.0, height / 2         // left
+                width / 4, 0.0, // top-left
+                3 * width / 4, 0.0, // top-right
+                width, height / 2, // right
+                3 * width / 4, height, // bottom-right
+                width / 4, height, // bottom-left
+                0.0, height / 2 // left
         );
         return hex;
     }
